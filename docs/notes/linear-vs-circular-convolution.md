@@ -17,10 +17,10 @@ $$n=0,1,…,N−1$$
 Then circular convolution is:
 $$y[n] = \sum_{k=0}^{N-1} x[k] \cdot h[(n - k) \mod N]$$
 
-Notice the modulo $\mod N$,it orces the indices to wrap around.
+Notice the modulo $\mod N$,it forces the indices to wrap around.
 This is what makes it **circular**.
 
-![Circular Convolution](Gemini_Generated_Image_zetyfjzetyfjzety.png)
+![Circular Convolution](images/circular-convolution.png)
 ---
 
 ## How Does the Image Look in Circular Convolution?
@@ -85,7 +85,7 @@ At the edges:
 
 That is why the output becomes $N + M - 1$.
 
-![Circular Convolution](Gemini_Generated_Image_7k51wr7k51wr7k51.png)
+![Linear convolution](images/linear-convolution.png)
 ---
 
 ## Why Circular Convolution Causes Aliasing?
