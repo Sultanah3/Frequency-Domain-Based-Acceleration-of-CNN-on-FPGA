@@ -18,7 +18,7 @@ inference, targeting the Terasic DE10-Standard (Intel Cyclone V SoC).
 |---|---|
 | `scripts/` |  `.m` scripts. |
 | `functions/` | Helper functions called by the scripts. |
-| `results/` | Plots and numerical tables. Small files only; anything large is regenerated rather than committed. |
+| `results/` | Plots and numerical tables. |
 
 ### `src/hardware/` — RTL implementation
 
