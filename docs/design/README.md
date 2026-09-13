@@ -26,13 +26,3 @@ stays on the boards.
 
 
 
-\## What lives here instead of Notion
-
-
-
-\- Finalized interface specifications (CSR map, AXI port lists)
-
-\- Buffer sizing tables once measured in Quartus
-
-\- Any decision that RTL code depends on
-
