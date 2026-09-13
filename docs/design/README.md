@@ -2,11 +2,7 @@
 
 
 
-Phase 2 RTL development is tracked on Notion. This directory holds
-
-design decisions that are stable enough to version; live task state
-
-stays on the boards.
+Phase 2 RTL development is tracked on Notion. This directory holds design decisions that are stable enough to version; live task state stays on the boards.
 
 
 
