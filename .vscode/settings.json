@@ -1,0 +1,15 @@
+{
+    "[verilog]": {
+        "editor.defaultFormatter": "mshr-h.veriloghdl",
+        "editor.formatOnSave": true
+    },
+    "[systemverilog]": {
+        "editor.defaultFormatter": "mshr-h.veriloghdl",
+        "editor.formatOnSave": true
+    },
+    "verilog.formatting.verilogHDL.formatter": "verible-verilog-format",
+    "verilog.formatting.systemVerilog.formatter": "verible-verilog-format",
+    "verilog.formatting.veribleVerilogFormatter.path": "C:/Users/aaala/AppData/Local/Verible/verible-verilog-format.exe",
+    "verilog.formatting.veribleVerilogFormatter.arguments": "--column_limit=100 --indentation_spaces=2 --port_declarations_alignment=align --named_port_alignment=align --assignment_statement_alignment=align",
+    "verilog.ctags.path": "ctags.exe"
+}
