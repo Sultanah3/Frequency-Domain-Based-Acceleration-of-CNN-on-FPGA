@@ -1,7 +1,23 @@
 # Frequency-Domain-Based Acceleration of CNN on FPGA
 
 Hermitian-symmetric OaA-FFT convolution accelerator for 2D CNN edge
-inference, targeting the Terasic DE10-Standard (Intel Cyclone V SoC).
+inference.
+
+## Editor setup (Windows)
+
+Verilog format-on-save and symbol/variable references in Cursor / VS Code
+need two local tools: [Verible](https://github.com/chipsalliance/verible)
+(`verible-verilog-format`) and [Universal Ctags](https://github.com/universal-ctags/ctags).
+The Verilog HDL extension (`mshr-h.veriloghdl`) uses them.
+
+From a Command Prompt or PowerShell, run:
+
+```bat
+scripts\install_all.bat
+```
+
+That installs both tools into `%LOCALAPPDATA%` and adds them to your user
+PATH. Restart Cursor / VS Code afterwards so the new PATH is picked up.
 
 ## Repository layout
 
@@ -40,4 +56,6 @@ Simulink, checked against by the testbenches.
 
 ### `scripts/`
 
-Workflow helpers. Not part of the design itself.
+Workflow helpers. Not part of the design itself. `install_all.bat`
+installs Verible and Universal Ctags for formatting and variable
+references (see [Editor setup](#editor-setup-windows)).
