@@ -1,0 +1,66 @@
+# ==========================================
+# Quartus Prime System & Build Directories
+# ==========================================
+/db/
+/incremental_db/
+/output_files/
+/hc_db/
+/greybox/
+/simulation/
+/hps_isw_handoff/
+/quartus/*.txt
+
+# ==========================================
+# Temporary & Generated Quartus Files
+# ==========================================
+*.flock
+*.rpt
+*.smsg
+*.summary
+*.done
+*.pin
+*.pof
+*.sof
+*.rbf
+*.jam
+*.jbc
+*.qws
+*.bak
+*.orig
+*.rej
+*.sld
+*.sci
+*.db_info
+*.qarlog
+
+# ==========================================
+# ModelSim / QuestaSim Outputs
+# ==========================================
+*.mti
+*.wlf
+*.mpf
+*.mti_bak
+/work/
+/msim/
+transcript
+
+# ==========================================
+# Python Environments & Tooling
+# ==========================================
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+env/
+.pytest_cache/
+
+# ==========================================
+# IDE & System Files
+# ==========================================
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.hex
