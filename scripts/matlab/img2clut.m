@@ -42,22 +42,29 @@ function generate_verilog_hex(image_path, options)
     palette_rgb = reshape(palette_raw(1:options.num_colors*3), 3, [])';
 
     % 6. Write Index Map to .hex
-    fid_index = fopen(index_hex_path, 'w');
-    if fid_index == -1, error('Failed to create file: %s', index_hex_path); end
-    fprintf(fid_index, '%02X\n', index_bytes);
-    fclose(fid_index);
+    index_width = ceil(log2(double(options.num_colors)));
+    index_depth = numel(index_bytes);
+
+    [out_dir, base_name, ~] = fileparts(index_hex_path);
+    index_mif_path = fullfile(out_dir, sprintf('%s.mif', base_name));
+
+    write_mif(index_mif_path, index_bytes, index_width, index_depth);
 
     % 7. Write Color Map (Palette) to .hex
     fid_palette = fopen(palette_hex_path, 'w');
     if fid_palette == -1, error('Failed to create file: %s', palette_hex_path); end
-    
+
     r = uint32(palette_rgb(:, 1));
     g = uint32(palette_rgb(:, 2));
     b = uint32(palette_rgb(:, 3));
-    
+
     hex_colors = bitshift(r, 16) + bitshift(g, 8) + b;
-    fprintf(fid_palette, '%06X\n', hex_colors);
-    fclose(fid_palette);
+    color_depth = numel(hex_colors);
+
+    [out_dir, base_name, ~] = fileparts(palette_hex_path);
+    color_mif_path = fullfile(out_dir, sprintf('%s.mif', base_name));
+
+    write_mif(color_mif_path, hex_colors, 24, color_depth);
 
     % Print confirmation
     [~, input_filename, ext] = fileparts(image_path);

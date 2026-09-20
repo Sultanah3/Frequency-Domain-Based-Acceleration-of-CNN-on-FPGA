@@ -18,12 +18,13 @@ module Top (
       .rgb_out    (rgb_reg)
   );
 
+  wire [13:0] pixel_address;
   AccelerationCore acceleration_core_inst (
       .clk          (main_clk),
       .reset_n      (reset_n),
       .kernel_pixel (0),
       .rgb_pixel    (0),
-      .pixel_address(0)
+      .pixel_address(pixel_address)
   );
 
 endmodule

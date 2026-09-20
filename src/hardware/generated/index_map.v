@@ -90,12 +90,7 @@ module index_map (
 	defparam
 		altsyncram_component.clock_enable_input_a = "BYPASS",
 		altsyncram_component.clock_enable_output_a = "BYPASS",
-`ifdef NO_PLI
-		altsyncram_component.init_file = "../resources/fujian_mountain_128_index_map.rif"
-`else
-		altsyncram_component.init_file = "../resources/fujian_mountain_128_index_map.hex"
-`endif
-,
+		altsyncram_component.init_file = "../resources/fujian_mountain_128_index_map.mif",
 		altsyncram_component.intended_device_family = "Cyclone V",
 		altsyncram_component.lpm_hint = "ENABLE_RUNTIME_MOD=NO",
 		altsyncram_component.lpm_type = "altsyncram",
@@ -135,7 +130,7 @@ endmodule
 // Retrieval info: PRIVATE: JTAG_ENABLED NUMERIC "0"
 // Retrieval info: PRIVATE: JTAG_ID STRING "NONE"
 // Retrieval info: PRIVATE: MAXIMUM_DEPTH NUMERIC "0"
-// Retrieval info: PRIVATE: MIFfilename STRING "../resources/fujian_mountain_128_index_map.hex"
+// Retrieval info: PRIVATE: MIFfilename STRING "../resources/fujian_mountain_128_index_map.mif"
 // Retrieval info: PRIVATE: NUMWORDS_A NUMERIC "16384"
 // Retrieval info: PRIVATE: RAM_BLOCK_TYPE NUMERIC "2"
 // Retrieval info: PRIVATE: READ_DURING_WRITE_MODE_PORT_A NUMERIC "3"
@@ -152,7 +147,7 @@ endmodule
 // Retrieval info: LIBRARY: altera_mf altera_mf.altera_mf_components.all
 // Retrieval info: CONSTANT: CLOCK_ENABLE_INPUT_A STRING "BYPASS"
 // Retrieval info: CONSTANT: CLOCK_ENABLE_OUTPUT_A STRING "BYPASS"
-// Retrieval info: CONSTANT: INIT_FILE STRING "../resources/fujian_mountain_128_index_map.hex"
+// Retrieval info: CONSTANT: INIT_FILE STRING "../resources/fujian_mountain_128_index_map.mif"
 // Retrieval info: CONSTANT: INTENDED_DEVICE_FAMILY STRING "Cyclone V"
 // Retrieval info: CONSTANT: LPM_HINT STRING "ENABLE_RUNTIME_MOD=NO"
 // Retrieval info: CONSTANT: LPM_TYPE STRING "altsyncram"

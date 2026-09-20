@@ -19,13 +19,14 @@
 #
 # Quartus Prime
 # Version 22.1std.2 Build 922 07/20/2023 SC Lite Edition
-# Date created = 21:33:23  September 16, 2026
+# Date created = 22:09:20  September 20, 2026
 #
 # -------------------------------------------------------------------------- #
 
 QUARTUS_VERSION = "22.1"
-DATE = "21:33:23  September 16, 2026"
+DATE = "22:09:20  September 20, 2026"
 
 # Revisions
 
-PROJECT_REVISION = "OaA-FFT-Convolution-Accelerator"
+PROJECT_REVISION = "DE10"
+PROJECT_REVISION = "DE1"
