@@ -63,4 +63,6 @@ env/
 .idea/
 .DS_Store
 Thumbs.db
-*.hex
+*.hexslprj/
+*.slxc
+*.asv
