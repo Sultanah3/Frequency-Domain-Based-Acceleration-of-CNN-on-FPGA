@@ -66,3 +66,15 @@ Thumbs.db
 *.hexslprj/
 *.slxc
 *.asv
+
+
+
+slprj/
+*.slxc
+src/hardware/generated/*/*/html/
+src/hardware/generated/*/*/gm_*.slx
+src/hardware/generated/*/*/hcv
+src/hardware/generated/*/*/hdlcodegenstatus.mat
+src/hardware/generated/*/*/*_report.html
+src/hardware/generated/*/*/*_map.txt
+src/hardware/generated/*/*/*_compile.do
