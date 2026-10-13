@@ -1,0 +1,79 @@
+# Reading pref.tcl
+# //  Questa Altera Starter FPGA Edition-64
+# //  Version 2025.2 win64 May 31 2025
+# //
+# // Unpublished work. Copyright 2025 Siemens
+# //
+# // This material contains trade secrets or otherwise confidential information
+# // owned by Siemens Industry Software Inc. or its affiliates (collectively,
+# // "SISW"), or its licensors. Access to and use of this information is strictly
+# // limited as set forth in the Customer's applicable agreements with SISW.
+# //
+# // This material may not be copied, distributed, or otherwise disclosed outside
+# // of the Customer's facilities without the express written permission of SISW,
+# // and may not be used in any way not expressly authorized by SISW.
+# //
+# do acc2d_run_msim_rtl_verilog.do
+# if {[file exists rtl_work]} {
+# 	vdel -lib rtl_work -all
+# }
+# vlib rtl_work
+# vmap work rtl_work
+# Questa Altera Starter FPGA Edition-64 vmap 2025.2 Lib Mapping Utility 2025.05 May 31 2025
+# vmap work rtl_work 
+# ** Note: (vmap-220) 'd:/altera_lite/25.1std/questa_fse/win64/../modelsim.ini' is used as the ini file.
+# Copying d:/altera_lite/25.1std/questa_fse/win64/../modelsim.ini to modelsim.ini
+# Modifying modelsim.ini
+# 
+# vlog  -work work +incdir+D:/fpga_projects/Frequency-Domain-Based-Acceleration-of-CNN-on-FPGA/src/hardware/hdl/acc2d {D:/fpga_projects/Frequency-Domain-Based-Acceleration-of-CNN-on-FPGA/src/hardware/hdl/acc2d/acc2d.v}
+# Questa Altera Starter FPGA Edition-64 vlog 2025.2 Compiler 2025.05 May 31 2025
+# Start time: 00:23:04 on Oct 14,2026
+# vlog -reportprogress 300 -work work "+incdir+D:/fpga_projects/Frequency-Domain-Based-Acceleration-of-CNN-on-FPGA/src/hardware/hdl/acc2d" D:/fpga_projects/Frequency-Domain-Based-Acceleration-of-CNN-on-FPGA/src/hardware/hdl/acc2d/acc2d.v 
+# ** Note: (vlog-220) 'modelsim.ini' is used as the ini file.
+# -- Compiling module acc2d
+# 
+# Top level modules:
+# 	acc2d
+# End time: 00:23:04 on Oct 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# 
+quit -sim
+cd D:/fpga_projects/Frequency-Domain-Based-Acceleration-of-CNN-on-FPGA/src/hardware/tb/acc2d
+# reading d:/altera_lite/25.1std/questa_fse/win64/../modelsim.ini
+vlib work
+# ** Warning: (vlib-34) Library already exists at "work".
+# Errors: 0, Warnings: 1
+vlog ../../hdl/acc2d/acc2d.v acc2d_tb.v
+# Questa Altera Starter FPGA Edition-64 vlog 2025.2 Compiler 2025.05 May 31 2025
+# Start time: 00:23:35 on Oct 14,2026
+# vlog -reportprogress 300 ../../hdl/acc2d/acc2d.v acc2d_tb.v 
+# ** Note: (vlog-220) 'd:/altera_lite/25.1std/questa_fse/win64/../modelsim.ini' is used as the ini file.
+# -- Compiling module acc2d
+# -- Compiling module acc2d_tb
+# 
+# Top level modules:
+# 	acc2d_tb
+# End time: 00:23:36 on Oct 14,2026, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 0
+vsim -L altera_mf_ver work.acc2d_tb
+# ** Note: (vsim-220) 'd:/altera_lite/25.1std/questa_fse/win64/../modelsim.ini' is used as the ini file.
+# vsim -L altera_mf_ver work.acc2d_tb 
+# Start time: 00:23:36 on Oct 14,2026
+# ** Note: (vsim-3813) Design is being optimized due to module recompilation...
+# ** Note: (vopt-220) 'd:/altera_lite/25.1std/questa_fse/win64/../modelsim.ini' is used as the ini file.
+# ** Warning: ../../hdl/acc2d/acc2d.v(112): (vopt-2685) [TFMPC] - Too few port connections for 'fifo'.  Expected 13, found 10.
+# ** Warning: ../../hdl/acc2d/acc2d.v(112): (vopt-2718) [TFMPC] - Missing connection for port 'almost_empty'.
+# ** Warning: ../../hdl/acc2d/acc2d.v(112): (vopt-2718) [TFMPC] - Missing connection for port 'almost_full'.
+# ** Warning: ../../hdl/acc2d/acc2d.v(112): (vopt-2718) [TFMPC] - Missing connection for port 'eccstatus'.
+# ** Note: (vsim-12126) Error and warning message counts have been restored: Errors=0, Warnings=4.
+# Loading work.acc2d_tb(fast)
+run -all
+# acc2d_tb: PASS, 94178 words match (COUT = 2, WAITREQ = 1)
+# ** Note: $finish    : acc2d_tb.v(136)
+#    Time: 5285985 ns  Iteration: 1  Instance: /acc2d_tb
+# 1
+# Break at acc2d_tb.v line 136
+add wave -position insertpoint sim:/acc2d_tb/*
+add wave -position insertpoint sim:/acc2d_tb/dut/*
+# ** UI-Msg (Warning): (vish-4014) No objects found matching '/acc2d_tb/dut/*'.
+# Load canceled

@@ -1,0 +1,5 @@
+__design_bin_path=D:/fpga_projects/Frequency-Domain-Based-Acceleration-of-CNN-on-FPGA/src/hardware/tb/acc2d
+incr_run_version=32768
+incr_partial_run_stats=0:0
+incr_no_change_stats=0:0
+opt_data_elab=D:/fpga_projects/Frequency-Domain-Based-Acceleration-of-CNN-on-FPGA/src/hardware/tb/acc2d/work/@_opt

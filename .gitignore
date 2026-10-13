@@ -77,4 +77,6 @@ src/hardware/generated/*/*/hcv
 src/hardware/generated/*/*/hdlcodegenstatus.mat
 src/hardware/generated/*/*/*_report.html
 src/hardware/generated/*/*/*_map.txt
-src/hardware/generated/*/*/*_compile.do
+src/hardware/generated/*/*/*_compile.dosrc/hardware/tb/*/work/
+transcript
+*.wlf
