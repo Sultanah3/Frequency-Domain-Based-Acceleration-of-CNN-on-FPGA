@@ -1,231 +1,262 @@
-// acc2d: overlap-add, crop and bias for the OaA-FFT core.
+`timescale 1ns/1ps
+
+// acc2d: overlap-add accumulator of the OaA-FFT core.
 //
-// Takes the ifft2d stream (NC x NC samples per spectrum, row-major) and
-// accumulates it in SDRAM through an Avalon-MM master. Each output pixel is
-// a 32-bit word with the same fraction bits as the input:
-//     addr = OUT_BASE + 4*(m*HO*WO + row*WO + col)
-// The first touch of a pixel writes it, later touches do read-add-write.
-// The bias is read from BIAS_BASE + 4*m and added at the last touch.
+// Takes the ifft2d stream (one NC x NC block per spectrum, row-major) and
+// adds every block into the conv1 output image held in SDRAM:
+//   first touch of a pixel : write (sample + bias)
+//   later touches          : read, add, write
+// Output layout (packed, one 32-bit word per pixel):
+//   addr = OUT_BASE + 4*(m*HO*HO + row*HO + col)
+// Real value of a word: word * 2^-13 (same scale as the ifft2d output).
 //
-// Tiles must arrive in raster order, all COUT filters of a tile before the
-// next tile. Upstream starts a new spectrum only while readyOut is high.
-// Avalon: byte addresses, one pending read. scfifo is from altera_mf.
+// Contract: tiles in raster order, all Cout filters of a tile before the
+// next tile; readyOut is ANDed into cmac2d.readyIn, so the chain starts a
+// spectrum only while readyOut is high.
+// imgDone pulses when the write of the last output pixel is accepted.
+//
+// Sections: (1) Position  (2) PixelMap  (3) SampleFIFO  (4) MemWorker
 
 module acc2d #(
-    parameter B         = 64,
-    parameter K         = 11,
-    parameter H         = 227,
-    parameter W         = 227,
-    parameter COUT      = 96,
-    parameter DW        = 16,        // input word (WL_SYS)
-    parameter SLACK     = 512,       // samples ifft2d still sends after its readyOut rises
-    parameter OUT_BASE  = 32'h200,
-    parameter BIAS_BASE = 32'h0
+    parameter B        = 64,
+    parameter K        = 11,
+    parameter H        = 227,           // image size (square)
+    parameter Cout     = 96,
+    parameter IF_WL    = 18,
+    parameter LOG2L    = 7,
+    parameter BIAS_WL  = 14,            // bias word: max |round(b*2^13)| = 6561 < 2^13
+    parameter BIAS_FILE = "bias.mif",    // bias ROM contents, path relative to the tool working folder
+    parameter OUT_BASE = 32'h0000_0000, // byte address of the output image
+    parameter NFLY     = 1,             // spectra still arriving at a launch: ceil((LAT_UP+NC*L)/17792)-1, measured LAT_UP 8935
+    parameter FIFO_AW  = 14             // FIFO depth = 2^FIFO_AW, must exceed (NFLY+1)*NC*NC
 ) (
-    input                     clk,
-    input                     reset,
+    input                           clk,
+    input                           reset,
 
-    input  [DW-1:0]           dataIn,
-    input                     validIn,
-    input                     doneIn,
-    input  [$clog2(COUT)-1:0] mIdxIn,
-    output reg                readyOut,
+    input  signed [IF_WL+LOG2L-1:0] dataIn,
+    input                           validIn,
+    output                          readyOut,
 
-    output [31:0]             avm_address,
-    output                    avm_read,
-    output                    avm_write,
-    output [31:0]             avm_writedata,
-    input  [31:0]             avm_readdata,
-    input                     avm_readdatavalid,
-    input                     avm_waitrequest,
+    output                          imgDone,
 
-    output reg                imgDone
+    output [31:0]                   avm_address,
+    output                          avm_read,
+    output                          avm_write,
+    output [31:0]                   avm_writedata,
+    input  [31:0]                   avm_readdata,
+    input                           avm_readdatavalid,
+    input                           avm_waitrequest
 );
 
-    localparam NC    = B + K - 1;           // 74
-    localparam HO    = H - K + 1;           // 217
-    localparam WO    = W - K + 1;           // 217
-    localparam TR    = (H + B - 1) / B;     // 4
-    localparam TC    = (W + B - 1) / B;     // 4
-    localparam MW    = $clog2(COUT);
-    localparam NW    = $clog2(NC);
-    localparam TW    = $clog2(TR > TC ? TR : TC) + 1;
-    localparam AW    = $clog2(NC*NC + SLACK + 1);
-    localparam DEPTH = 1 << AW;             // 8192
+    // Derived sizes
+    localparam NC      = B + K - 1;                      // 74, block side
+    localparam NT      = (H + B - 1) / B;                // 4, tiles per side
+    localparam HO      = H - K + 1;                      // 217, valid output side
+    localparam NW      = $clog2(NC);                     // 7, block counters
+    localparam MW      = (Cout > 1) ? $clog2(Cout) : 1;  // 7, filter counter (1 bit when Cout = 1)
+    localparam TW      = $clog2(NT);                     // 2, tile counters
+    localparam GW      = $clog2((NT-1)*B + NC);          // 9, full-conv coordinate
+    localparam OW      = $clog2(HO);                     // 8, output row/col
+    localparam WAW     = $clog2(Cout*HO*HO);             // 23, word address
+    localparam DW      = IF_WL + LOG2L;                  // 25, input sample
+    localparam DW1     = DW + 1;                         // 26, sample + bias
+    localparam WORDW   = WAW + 1 + DW1;                  // 50, FIFO word
+    localparam DEPTH   = 1 << FIFO_AW;                   // 16384, FIFO words
+    localparam SPEC    = NC * NC;                        // 5476, most samples one spectrum can push
+    localparam ROOM    = DEPTH - (NFLY + 1) * SPEC;      // readyOut threshold on usedw
+    localparam LAST_WA = Cout*HO*HO - 1;                 // word address of the last output pixel
 
-    // Tile position of the incoming spectrum
-    reg          inSpec;
-    reg [TW-1:0] trIn, tcIn;
-    wire         newSpec = validIn & ~inSpec;
+    // =====================================================================
+    // (1) Position: cascaded counters c -> r -> m -> tc -> tr
+    // Counts valid samples only. A counter steps when every counter before
+    // it is at its last value. The registers always hold the position of
+    // the sample that is on dataIn now.
+    // =====================================================================
+    reg [NW-1:0] c, r;      // column and row inside the NC x NC block
+    reg [MW-1:0] m;         // filter
+    reg [TW-1:0] tc, tr;    // tile column and tile row
 
-    always @(posedge clk or posedge reset)
-        if (reset) begin
-            inSpec <= 0;
-            trIn   <= 0;
-            tcIn   <= 0;
-        end else begin
-            if (validIn) inSpec <= 1;
-            if (doneIn)  inSpec <= 0;
-            if (doneIn && mIdxIn == COUT-1) begin
-                tcIn <= (tcIn == TC-1) ? 0 : tcIn + 1;
-                if (tcIn == TC-1)
-                    trIn <= (trIn == TR-1) ? 0 : trIn + 1;
-            end
-        end
+    wire cEnd   = (c  == NC-1);
+    wire rEnd   = (r  == NC-1);
+    wire mEnd   = (m  == Cout-1);
+    wire tcEnd  = (tc == NT-1);
+    wire trEnd  = (tr == NT-1);
 
-    // Header FIFO: {m, tr, tc} of each spectrum, 4 deep
-    reg  [MW+2*TW-1:0] hdr [0:3];
-    reg  [1:0]         hWr, hRd;
-    reg  [2:0]         hCnt;
-    wire               hPop;
-    wire [MW-1:0]      hM;
-    wire [TW-1:0]      hTr, hTc;
-
-    assign {hM, hTr, hTc} = hdr[hRd];
-
-    always @(posedge clk)
-        if (newSpec) hdr[hWr] <= {mIdxIn, trIn, tcIn};
+    wire cStep  = validIn;
+    wire rStep  = cStep  & cEnd;
+    wire mStep  = rStep  & rEnd;
+    wire tcStep = mStep  & mEnd;
+    wire trStep = tcStep & tcEnd;
 
     always @(posedge clk or posedge reset)
         if (reset) begin
-            hWr  <= 0;
-            hRd  <= 0;
-            hCnt <= 0;
+            c  <= 0;
+            r  <= 0;
+            m  <= 0;
+            tc <= 0;
+            tr <= 0;
         end else begin
-            hWr  <= hWr + newSpec;
-            hRd  <= hRd + hPop;
-            hCnt <= hCnt + newSpec - hPop;
+            if (cStep)  c  <= cEnd  ? 0 : c  + 1'b1;
+            if (rStep)  r  <= rEnd  ? 0 : r  + 1'b1;
+            if (mStep)  m  <= mEnd  ? 0 : m  + 1'b1;
+            if (tcStep) tc <= tcEnd ? 0 : tc + 1'b1;
+            if (trStep) tr <= trEnd ? 0 : tr + 1'b1;
         end
 
-    // Sample FIFO: one spectrum plus SLACK
-    wire [DW-1:0] fq;
-    wire [AW-1:0] fUsed;
-    wire          fEmpty, fFull, fRd;
+    // =====================================================================
+    // (2) PixelMap: where the sample goes and whether it is a first touch
+    // Stage 0 (combinational): full-conv coordinate, crop, first, address.
+    // Stage A (register): the ROM input register delays m by one cycle,
+    // so the stage A register lines the sample up with its bias.
+    // =====================================================================
+
+    // Full linear convolution coordinate of the sample (tr*B is a shift)
+    wire [GW-1:0] gr = tr * B + r;
+    wire [GW-1:0] gc = tc * B + c;
+
+    // Crop: keep only the stride-1 valid region, rows/cols K-1 .. K-1+HO-1
+    wire keep = (gr >= K-1) && (gr < K-1+HO) &&
+                (gc >= K-1) && (gc < K-1+HO);
+
+    // First touch: the tile above and the tile on the left come earlier,
+    // so a pixel inside their K-1 margin has already been written
+    wire first = (r >= K-1 || tr == 0) && (c >= K-1 || tc == 0);
+
+    // Word address inside the output image (packed HO x HO per filter)
+    wire [OW-1:0]  row = gr - (K-1);
+    wire [OW-1:0]  col = gc - (K-1);
+    wire [WAW-1:0] wa  = m * (HO*HO) + row * HO + col;
+
+    // Stage A register
+    reg           pushA;
+    reg           firstA;
+    reg [WAW-1:0] waA;
+    reg [DW-1:0]  dataA;
+
+    always @(posedge clk or posedge reset)
+        if (reset) pushA <= 1'b0;
+        else       pushA <= validIn & keep;
+
+    always @(posedge clk) begin
+        firstA <= first;
+        waA    <= wa;
+        dataA  <= dataIn;
+    end
+
+    // Bias ROM: address m, one cycle latency, contents from BIAS_FILE
+    // (two's complement, Cout words of BIAS_WL bits)
+    wire [BIAS_WL-1:0] biasQ;
+
+    altsyncram #(
+        .operation_mode         ("ROM"),
+        .width_a                (BIAS_WL),
+        .widthad_a              (MW),
+        .numwords_a             (Cout),
+        .outdata_reg_a          ("UNREGISTERED"),
+        .init_file              (BIAS_FILE),
+        .intended_device_family ("Cyclone V"),
+        .lpm_type               ("altsyncram")
+    ) biasRom (
+        .clock0    (clk),
+        .address_a (m),
+        .q_a       (biasQ)
+    );
+
+    // Sample + bias on first touch (explicit sign extension to DW1)
+    wire [DW1-1:0] biasX = {{(DW1-BIAS_WL){biasQ[BIAS_WL-1]}}, biasQ};
+    wire [DW1-1:0] dataX = {dataA[DW-1], dataA};
+    wire [DW1-1:0] dataB = dataX + (firstA ? biasX : {DW1{1'b0}});
+
+    // To SampleFIFO
+    wire             push = pushA;
+    wire [WORDW-1:0] word = {waA, firstA, dataB};
+
+    // =====================================================================
+    // (3) SampleFIFO: waiting room between the stream and the SDRAM
+    // Show-ahead scfifo: q holds the head word whenever empty is low, and
+    // pop removes it. readyOut tells upstream there is room for every
+    // spectrum already in flight plus one more.
+    // =====================================================================
+    wire [WORDW-1:0]   fq;
+    wire               fEmpty, fFull;
+    wire [FIFO_AW-1:0] fUsed;
+    wire               pop;
 
     scfifo #(
-        .lpm_type               ("scfifo"),
-        .lpm_width              (DW),
+        .lpm_width              (WORDW),
         .lpm_numwords           (DEPTH),
-        .lpm_widthu             (AW),
+        .lpm_widthu             (FIFO_AW),
         .lpm_showahead          ("ON"),
-        .intended_device_family ("Cyclone V")
-    ) fifo (
+        .intended_device_family ("Cyclone V"),
+        .lpm_type               ("scfifo")
+    ) sampleFifo (
         .clock (clk),
         .aclr  (reset),
         .sclr  (1'b0),
-        .data  (dataIn),
-        .wrreq (validIn),
-        .rdreq (fRd),
+        .data  (word),
+        .wrreq (push),
+        .rdreq (pop),
         .q     (fq),
         .empty (fEmpty),
         .full  (fFull),
         .usedw (fUsed)
     );
 
-    // usedw reads 0 when the FIFO is full, so check full as well
-    always @(posedge clk or posedge reset)
-        if (reset) readyOut <= 0;
-        else       readyOut <= !fFull && fUsed <= DEPTH - NC*NC - SLACK;
+    // usedw wraps to 0 when the FIFO is full, so full is checked too
+    assign readyOut = !fFull && (fUsed <= ROOM);
 
-    // Output side
-    localparam IDLE = 0, BIAS_RD = 1, BIAS_WAIT = 2, PIX = 3,
-               RD   = 4, RD_WAIT = 5, WR        = 6;
+    // =====================================================================
+    // (4) MemWorker: one word at a time
+    // IDLE: pop the head word; first touch goes straight to WR, else RD.
+    // RD:   issue the read.   RDW: wait for the data, add the sample.
+    // WR:   issue the write.  Avalon holds each request while waitrequest
+    //       is high, which the state registers do by not moving.
+    // =====================================================================
+    localparam IDLE = 2'd0, RD = 2'd1, RDW = 2'd2, WR = 2'd3;
 
-    reg [2:0]    state;
-    reg [MW-1:0] m;
-    reg [TW-1:0] tr, tc;
-    reg [NW-1:0] r, c;                      // position inside the NC x NC block
-    reg [31:0]   base, bias, addr, sample, wdata;
-    reg          lastQ;
+    reg [1:0]     state;
+    reg [WAW-1:0] waR;      // word address of the current pixel
+    reg [31:0]    wdata;    // sample (+ bias), then the sum to write
+    reg           imgDoneR;
 
-    // Where the sample at the FIFO head goes
-    wire [15:0] gr      = tr * B + r;
-    wire [15:0] gc      = tc * B + c;
-    wire        keep    = gr >= K-1 && gr < K-1+HO && gc >= K-1 && gc < K-1+WO;
-    wire        first   = (r >= K-1 || tr == 0)    && (c >= K-1 || tc == 0);
-    wire        last    = (r <  B   || tr == TR-1) && (c <  B   || tc == TC-1);
-    wire [31:0] pixAddr = base + 4 * ((gr - (K-1)) * WO + (gc - (K-1)));
-    wire [31:0] din     = {{(32-DW){fq[DW-1]}}, fq};
+    // Fields of the head word
+    wire [WAW-1:0] fWa    = fq[WORDW-1 -: WAW];
+    wire           fFirst = fq[DW1];
+    wire [DW1-1:0] fData  = fq[DW1-1:0];
 
-    wire next = (state == PIX && !fEmpty && !keep) ||
-                (state == WR  && !avm_waitrequest);
-
-    assign hPop          = state == IDLE && hCnt != 0;
-    assign fRd           = state == PIX && !fEmpty;
-    assign avm_read      = state == BIAS_RD || state == RD;
-    assign avm_write     = state == WR;
-    assign avm_address   = (state == BIAS_RD) ? BIAS_BASE + 4*m : addr;
-    assign avm_writedata = wdata;
+    assign pop = (state == IDLE) && !fEmpty;
 
     always @(posedge clk or posedge reset)
-        if (reset) begin
-            state   <= IDLE;
-            imgDone <= 0;
-            m       <= 0;
-            tr      <= 0;
-            tc      <= 0;
-            r       <= 0;
-            c       <= 0;
-            base    <= 0;
-            bias    <= 0;
-            addr    <= 0;
-            sample  <= 0;
-            wdata   <= 0;
-            lastQ   <= 0;
-        end else begin
-            imgDone <= 0;
+        if (reset) state <= IDLE;
+        else case (state)
+            IDLE: if (!fEmpty)           state <= fFirst ? WR : RD;
+            RD:   if (!avm_waitrequest)  state <= RDW;
+            RDW:  if (avm_readdatavalid) state <= WR;
+            WR:   if (!avm_waitrequest)  state <= IDLE;
+        endcase
 
-            case (state)
-                IDLE: if (hCnt != 0) begin
-                    m     <= hM;
-                    tr    <= hTr;
-                    tc    <= hTc;
-                    base  <= OUT_BASE + 4 * hM * HO * WO;
-                    r     <= 0;
-                    c     <= 0;
-                    state <= BIAS_RD;
-                end
-
-                BIAS_RD:   if (!avm_waitrequest) state <= BIAS_WAIT;
-
-                BIAS_WAIT: if (avm_readdatavalid) begin
-                    bias  <= avm_readdata;
-                    state <= PIX;
-                end
-
-                PIX: if (!fEmpty && keep) begin
-                    addr   <= pixAddr;
-                    sample <= din;
-                    lastQ  <= last;
-                    if (first) begin
-                        wdata <= din + (last ? bias : 0);
-                        state <= WR;
-                    end else begin
-                        state <= RD;
-                    end
-                end
-
-                RD:      if (!avm_waitrequest) state <= RD_WAIT;
-
-                RD_WAIT: if (avm_readdatavalid) begin
-                    wdata <= avm_readdata + sample + (lastQ ? bias : 0);
-                    state <= WR;
-                end
-
-                WR: ;   // handled below
-            endcase
-
-            // Next sample: after a dropped sample or an accepted write
-            if (next) begin
-                if (r == NC-1 && c == NC-1) begin
-                    state   <= IDLE;
-                    imgDone <= m == COUT-1 && tr == TR-1 && tc == TC-1;
-                end else begin
-                    state <= PIX;
-                    c     <= (c == NC-1) ? 0 : c + 1;
-                    if (c == NC-1) r <= r + 1;
-                end
-            end
+    // The head word is captured every IDLE cycle; it only matters on the
+    // cycle that pops, which is the cycle that leaves IDLE. On the RD path
+    // wdata still holds the sample when the old value arrives.
+    always @(posedge clk) begin
+        if (state == IDLE) begin
+            waR   <= fWa;
+            wdata <= {{(32-DW1){fData[DW1-1]}}, fData};
         end
+        if (state == RDW && avm_readdatavalid)
+            wdata <= avm_readdata + wdata;
+    end
+
+    // The last output pixel is touched by the last tile only and is the
+    // last word pushed, so its accepted write ends the image
+    always @(posedge clk or posedge reset)
+        if (reset) imgDoneR <= 1'b0;
+        else       imgDoneR <= (state == WR) && !avm_waitrequest && (waR == LAST_WA);
+
+    assign imgDone       = imgDoneR;
+    assign avm_address   = OUT_BASE + {waR, 2'b00};
+    assign avm_read      = (state == RD);
+    assign avm_write     = (state == WR);
+    assign avm_writedata = wdata;
 
 endmodule
