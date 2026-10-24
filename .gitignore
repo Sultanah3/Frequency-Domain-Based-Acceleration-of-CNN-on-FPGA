@@ -82,3 +82,7 @@ env/
 .idea/
 .DS_Store
 Thumbs.db
+
+*.qdf
+greybox_tmp/
+*.ver

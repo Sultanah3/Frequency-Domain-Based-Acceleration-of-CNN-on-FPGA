@@ -42,9 +42,9 @@ set_global_assignment -name DEVICE 5CSXFC6D6F31C6
 set_global_assignment -name TOP_LEVEL_ENTITY Top
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 22.1STD.2
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "21:25:08  SEPTEMBER 20, 2026"
-set_global_assignment -name LAST_QUARTUS_VERSION "22.1std.2 Lite Edition"
+set_global_assignment -name LAST_QUARTUS_VERSION "25.1std.0 Lite Edition"
 set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files
-set_global_assignment -name EDA_SIMULATION_TOOL "Questa Intel FPGA (Verilog)"
+set_global_assignment -name EDA_SIMULATION_TOOL "Questa Altera FPGA (Verilog)"
 set_global_assignment -name EDA_TIME_SCALE "1 ps" -section_id eda_simulation
 set_global_assignment -name EDA_OUTPUT_DATA_FORMAT "VERILOG HDL" -section_id eda_simulation
 set_global_assignment -name EDA_GENERATE_FUNCTIONAL_NETLIST OFF -section_id eda_board_design_timing
@@ -58,6 +58,7 @@ set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
 set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
 set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
 set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
+set_global_assignment -name VERILOG_FILE ../src/hardware/hdl/acc2d/acc2d.v
 set_global_assignment -name HEX_FILE ../resources/fujian_mountain_128_index_map.hex
 set_global_assignment -name HEX_FILE ../resources/fujian_mountain_128_color_map.hex
 set_global_assignment -name VERILOG_FILE ../src/hardware/hdl/KernelReservoir.v
@@ -66,4 +67,16 @@ set_global_assignment -name VERILOG_FILE ../src/hardware/hdl/ImageReservoir.v
 set_global_assignment -name VERILOG_FILE ../src/Top.v
 set_global_assignment -name QIP_FILE ../src/hardware/generated/index_map.qip
 set_global_assignment -name QIP_FILE ../src/hardware/generated/color_map.qip
+set_global_assignment -name QIP_FILE ../src/hardware/generated/acc2d_fifo.qip
+set_global_assignment -name QIP_FILE ../src/hardware/generated/bias_rom.qip
+set_global_assignment -name EDA_TEST_BENCH_ENABLE_STATUS TEST_BENCH_MODE -section_id eda_simulation
+set_global_assignment -name EDA_NATIVELINK_SIMULATION_TEST_BENCH acc2d_tb -section_id eda_simulation
+set_global_assignment -name EDA_TEST_BENCH_NAME acc2d_tb -section_id eda_simulation
+set_global_assignment -name EDA_DESIGN_INSTANCE_NAME NA -section_id acc2d_tb
+set_global_assignment -name EDA_TEST_BENCH_MODULE_NAME acc2d_tb -section_id acc2d_tb
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
+set_global_assignment -name EDA_TEST_BENCH_FILE ../src/hardware/tb/acc2d/acc2d_tb.v -section_id acc2d_tb
+set_global_assignment -name EDA_TEST_BENCH_FILE ../src/hardware/generated/acc2d_fifo.v -section_id acc2d_tb
+set_global_assignment -name EDA_TEST_BENCH_FILE ../src/hardware/generated/bias_rom.v -section_id acc2d_tb
+set_global_assignment -name EDA_TEST_BENCH_FILE ../src/hardware/hdl/acc2d/acc2d.v -section_id acc2d_tb
+set_global_assignment -name EDA_NETLIST_WRITER_OUTPUT_DIR ../simulation -section_id eda_simulation
