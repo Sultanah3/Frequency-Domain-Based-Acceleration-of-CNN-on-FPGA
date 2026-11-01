@@ -1,0 +1,366 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project MetadataType="monolithic">
+    <Files Location="Root">
+        <File Location="src">
+            <File Location="matlab">
+                <File Location="results">
+                    <Info/>
+                    <DIR_SIGNIFIER Location="1">
+                        <Info/>
+                    </DIR_SIGNIFIER>
+                    <File Location=".gitkeep">
+                        <Info/>
+                    </File>
+                </File>
+                <Info/>
+                <File Location="functions">
+                    <File Location=".gitkeep">
+                        <Info/>
+                    </File>
+                    <Info/>
+                    <DIR_SIGNIFIER Location="1">
+                        <Info/>
+                    </DIR_SIGNIFIER>
+                </File>
+                <File Location="scripts">
+                    <File Location=".gitkeep">
+                        <Info/>
+                    </File>
+                    <DIR_SIGNIFIER Location="1">
+                        <Info/>
+                    </DIR_SIGNIFIER>
+                    <Info/>
+                </File>
+                <DIR_SIGNIFIER Location="1">
+                    <Info/>
+                </DIR_SIGNIFIER>
+            </File>
+            <File Location="hardware">
+                <File Location="sim">
+                    <Info/>
+                    <DIR_SIGNIFIER Location="1">
+                        <Info/>
+                    </DIR_SIGNIFIER>
+                    <File Location=".gitkeep">
+                        <Info/>
+                    </File>
+                </File>
+                <File Location="tb">
+                    <Info/>
+                    <File Location=".gitkeep">
+                        <Info/>
+                    </File>
+                    <DIR_SIGNIFIER Location="1">
+                        <Info/>
+                    </DIR_SIGNIFIER>
+                </File>
+                <File Location="hdl">
+                    <File Location="KernelReservoir.v">
+                        <Info/>
+                    </File>
+                    <DIR_SIGNIFIER Location="1">
+                        <Info/>
+                    </DIR_SIGNIFIER>
+                    <File Location="AccelerationCore.v">
+                        <Info/>
+                    </File>
+                    <Info/>
+                    <File Location=".gitkeep">
+                        <Info/>
+                    </File>
+                    <File Location="ImageReservoir.v">
+                        <Info/>
+                    </File>
+                </File>
+                <Info/>
+                <File Location="generated">
+                    <File Location="color_map_inst.v">
+                        <Info/>
+                    </File>
+                    <File Location="index_map_bb.v">
+                        <Info/>
+                    </File>
+                    <File Location="color_map.v">
+                        <Info/>
+                    </File>
+                    <Info/>
+                    <DIR_SIGNIFIER Location="1">
+                        <Info/>
+                    </DIR_SIGNIFIER>
+                    <File Location="color_map_bb.v">
+                        <Info/>
+                    </File>
+                    <File Location="common">
+                        <DIR_SIGNIFIER Location="1">
+                            <Info/>
+                        </DIR_SIGNIFIER>
+                        <File Location="fxp_sys.sldd">
+                            <Info>
+                                <Category UUID="FileClassCategory">
+                                    <Label UUID="design"/>
+                                </Category>
+                            </Info>
+                        </File>
+                        <Info/>
+                        <File Location="fx_lib.slx">
+                            <Info>
+                                <Category UUID="FileClassCategory">
+                                    <Label UUID="design"/>
+                                </Category>
+                            </Info>
+                        </File>
+                    </File>
+                    <File Location="index_map.v">
+                        <Info/>
+                    </File>
+                    <File Location="AcceleratationCore.slx">
+                        <Info>
+                            <Category UUID="FileClassCategory">
+                                <Label UUID="design"/>
+                            </Category>
+                        </Info>
+                    </File>
+                    <File Location="color_map.qip">
+                        <Info/>
+                    </File>
+                    <File Location="index_map_inst.v">
+                        <Info/>
+                    </File>
+                    <File Location="index_map.qip">
+                        <Info/>
+                    </File>
+                    <File Location=".gitkeep">
+                        <Info/>
+                    </File>
+                </File>
+                <DIR_SIGNIFIER Location="1">
+                    <Info/>
+                </DIR_SIGNIFIER>
+            </File>
+            <File Location="Top.v">
+                <Info/>
+            </File>
+            <File Location="software">
+                <Info/>
+                <DIR_SIGNIFIER Location="1">
+                    <Info/>
+                </DIR_SIGNIFIER>
+                <File Location=".gitkeep">
+                    <Info/>
+                </File>
+            </File>
+            <Info/>
+            <DIR_SIGNIFIER Location="1">
+                <Info/>
+            </DIR_SIGNIFIER>
+        </File>
+        <File Location="resources">
+            <File Location="fujian_mountain_128_index_map.mif">
+                <Info/>
+            </File>
+            <File Location="fujian_mountain_128_color_map.mif">
+                <Info/>
+            </File>
+            <Info/>
+            <File Location="fujian_mountain_227.png">
+                <Info/>
+            </File>
+            <File Location="fujian_mountain_128.png">
+                <Info/>
+            </File>
+            <DIR_SIGNIFIER Location="1">
+                <Info/>
+            </DIR_SIGNIFIER>
+        </File>
+        <File Location="docs">
+            <File Location="notes">
+                <Info/>
+                <File Location="linear-vs-circular-convolution.md">
+                    <Info/>
+                </File>
+                <File Location="images">
+                    <Info/>
+                    <DIR_SIGNIFIER Location="1">
+                        <Info/>
+                    </DIR_SIGNIFIER>
+                    <File Location="linear-convolution.png">
+                        <Info/>
+                    </File>
+                    <File Location="circular-convolution.png">
+                        <Info/>
+                    </File>
+                </File>
+                <DIR_SIGNIFIER Location="1">
+                    <Info/>
+                </DIR_SIGNIFIER>
+                <File Location="inference-vs-training.md">
+                    <Info/>
+                </File>
+                <File Location="dsp-fundamentals.md">
+                    <Info/>
+                </File>
+            </File>
+            <Info/>
+            <File Location="design">
+                <DIR_SIGNIFIER Location="1">
+                    <Info/>
+                </DIR_SIGNIFIER>
+                <File Location="README.md">
+                    <Info/>
+                </File>
+                <Info/>
+            </File>
+            <DIR_SIGNIFIER Location="1">
+                <Info/>
+            </DIR_SIGNIFIER>
+        </File>
+        <File Location="scripts">
+            <File Location=".gitkeep">
+                <Info/>
+            </File>
+            <File Location="install_ctags.bat">
+                <Info/>
+            </File>
+            <File Location="install_verible.bat">
+                <Info/>
+            </File>
+            <File Location="python">
+                <File Location="img2clut.py">
+                    <Info/>
+                </File>
+                <File Location="requirements.txt">
+                    <Info/>
+                </File>
+                <DIR_SIGNIFIER Location="1">
+                    <Info/>
+                </DIR_SIGNIFIER>
+                <Info/>
+            </File>
+            <DIR_SIGNIFIER Location="1">
+                <Info/>
+            </DIR_SIGNIFIER>
+            <File Location="matlab">
+                <DIR_SIGNIFIER Location="1">
+                    <Info/>
+                </DIR_SIGNIFIER>
+                <File Location="write_mif.m">
+                    <Info>
+                        <Category UUID="FileClassCategory">
+                            <Label UUID="design"/>
+                        </Category>
+                    </Info>
+                </File>
+                <Info/>
+                <File Location="img2clut.m">
+                    <Info>
+                        <Category UUID="FileClassCategory">
+                            <Label UUID="design"/>
+                        </Category>
+                    </Info>
+                </File>
+            </File>
+            <Info/>
+            <File Location="install_all.bat">
+                <Info/>
+            </File>
+        </File>
+        <File Location="vectors">
+            <File Location=".gitkeep">
+                <Info/>
+            </File>
+            <DIR_SIGNIFIER Location="1">
+                <Info/>
+            </DIR_SIGNIFIER>
+            <File Location="phase1_inputs.mat">
+                <Info>
+                    <Category UUID="FileClassCategory">
+                        <Label UUID="design"/>
+                    </Category>
+                </Info>
+            </File>
+            <Info/>
+        </File>
+        <File Location="quartus">
+            <File Location="OaA-FFT-Convolution-Accelerator.qpf">
+                <Info/>
+            </File>
+            <DIR_SIGNIFIER Location="1">
+                <Info/>
+            </DIR_SIGNIFIER>
+            <Info/>
+            <File Location="DE1.qsf">
+                <Info/>
+            </File>
+            <File Location="DE10.qsf">
+                <Info/>
+            </File>
+        </File>
+        <File Location=".vscode">
+            <File Location="settings.json">
+                <Info/>
+            </File>
+            <DIR_SIGNIFIER Location="1">
+                <Info/>
+            </DIR_SIGNIFIER>
+            <Info/>
+        </File>
+        <File Location="README.md">
+            <Info/>
+        </File>
+        <File Location=".gitattributes">
+            <Info/>
+        </File>
+        <File Location=".gitignore">
+            <Info/>
+        </File>
+    </Files>
+    <ProjectPath Location="Root">
+        <Reference Location="90c4eb35-4b5a-4096-938e-4ebfe57c0122">
+            <Info Ref="src/hardware/tb/acc2d" Type="Relative"/>
+        </Reference>
+        <Reference Location="7e66df73-53c7-4be4-b471-866f8b256d9f">
+            <Info Ref="src/hardware/generated/ifft2d" Type="Relative"/>
+        </Reference>
+        <Reference Location="c42612f3-1a33-4a04-a213-97e0dda8a103">
+            <Info Ref="src/hardware/generated/fft2d" Type="Relative"/>
+        </Reference>
+        <Reference Location="32819db6-5ee2-4c98-b721-11233ae8cc7e">
+            <Info Ref="scripts/matlab" Type="Relative"/>
+        </Reference>
+        <Reference Location="9cbeb744-caeb-44e8-bf3b-f5b0ad31581b">
+            <Info Ref="src/hardware/generated/cmac2d" Type="Relative"/>
+        </Reference>
+        <Reference Location="54dd78f1-ee74-457f-b78b-c3fbf0f229c0">
+            <Info Ref="src/hardware/generated" Type="Relative"/>
+        </Reference>
+    </ProjectPath>
+    <Categories Location="Root">
+        <Category Location="FileClassCategory">
+            <Label Location="design">
+                <Info Name="Design" ReadOnly="READ_ONLY"/>
+            </Label>
+            <Label Location="test">
+                <Info Name="Test" ReadOnly="READ_ONLY"/>
+            </Label>
+            <Label Location="convenience">
+                <Info Name="Convenience" ReadOnly="READ_ONLY"/>
+            </Label>
+            <Label Location="other">
+                <Info Name="Other" ReadOnly="READ_ONLY"/>
+            </Label>
+            <Label Location="artifact">
+                <Info Name="Artifact" ReadOnly="READ_ONLY"/>
+            </Label>
+            <Label Location="none">
+                <Info Name="None" ReadOnly="READ_ONLY"/>
+            </Label>
+            <Label Location="derived">
+                <Info Name="Derived" ReadOnly="READ_ONLY"/>
+            </Label>
+            <Info DataType="None" Name="Classification" ReadOnly="1" SingleValued="1"/>
+        </Category>
+    </Categories>
+    <Info Location="ProjectData">
+        <Info Name="OaA_FFT"/>
+    </Info>
+</project>

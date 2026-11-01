@@ -1,13 +1,14 @@
 # ==========================================
 # Quartus Prime System & Build Directories
+# (no leading "/", so they match in every project folder, not only the repo root)
 # ==========================================
-/db/
-/incremental_db/
-/output_files/
-/hc_db/
-/greybox/
-/simulation/
-/hps_isw_handoff/
+db/
+incremental_db/
+output_files/
+hc_db/
+greybox/
+simulation/
+hps_isw_handoff/
 /quartus/*.txt
 
 # ==========================================
@@ -25,7 +26,7 @@
 *.jam
 *.jbc
 *.qws
-*.bak
+*.bak*
 *.orig
 *.rej
 *.sld
@@ -40,9 +41,27 @@
 *.wlf
 *.mpf
 *.mti_bak
-/work/
-/msim/
+work/
+msim/
 transcript
+
+# ==========================================
+# MATLAB / Simulink
+# ==========================================
+slprj/
+*.slxc
+*.asv
+*.autosave
+hdlsrc/
+# HDL Coder output folders (Verilog is generated from the .slx files)
+src/hardware/generated/*/*/
+
+# ==========================================
+# Generated test vectors and saved runs
+# ==========================================
+src/hardware/sim/*
+!src/hardware/sim/.gitkeep
+vectors/run_*.mat
 
 # ==========================================
 # Python Environments & Tooling
@@ -63,4 +82,7 @@ env/
 .idea/
 .DS_Store
 Thumbs.db
-*.hex
+
+*.qdf
+greybox_tmp/
+*.ver
