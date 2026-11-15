@@ -63,6 +63,9 @@ set_global_assignment -name EDA_TEST_BENCH_FILE ../src/hardware/tb/acc2d/acc2d_t
 set_global_assignment -name EDA_TEST_BENCH_FILE ../src/hardware/generated/acc2d_fifo.v -section_id acc2d_tb
 set_global_assignment -name EDA_TEST_BENCH_FILE ../src/hardware/generated/bias_rom.v -section_id acc2d_tb
 set_global_assignment -name EDA_TEST_BENCH_FILE ../src/hardware/hdl/acc2d/acc2d.v -section_id acc2d_tb
+set_global_assignment -name FLOW_ENABLE_RTL_VIEWER ON
+set_global_assignment -name TIMING_ANALYZER_MULTICORNER_ANALYSIS ON
+set_global_assignment -name VERILOG_FILE ../src/hardware/generated/acceleration_core/Accelerat_ip_src_cmac_2d.v
 set_global_assignment -name VERILOG_FILE ../src/hardware/generated/acceleration_core/Accelerat_ip_src_TWDLROM_7_1_block.v
 set_global_assignment -name VERILOG_FILE ../src/hardware/generated/acceleration_core/Accelerat_ip_src_TWDLROM_7_1.v
 set_global_assignment -name VERILOG_FILE ../src/hardware/generated/acceleration_core/Accelerat_ip_src_TWDLROM_5_1_block.v
@@ -152,7 +155,6 @@ set_global_assignment -name VERILOG_FILE ../src/hardware/generated/acceleration_
 set_global_assignment -name VERILOG_FILE ../src/hardware/generated/acceleration_core/Accelerat_ip_src_Cmp_data.v
 set_global_assignment -name VERILOG_FILE ../src/hardware/generated/acceleration_core/Accelerat_ip_src_Cmp_crop.v
 set_global_assignment -name VERILOG_FILE ../src/hardware/generated/acceleration_core/Accelerat_ip_src_Cmp_col.v
-set_global_assignment -name VERILOG_FILE ../src/hardware/generated/acceleration_core/Accelerat_ip_src_cmac2d.v
 set_global_assignment -name VERILOG_FILE ../src/hardware/generated/acceleration_core/Accelerat_ip_src_chLast.v
 set_global_assignment -name VERILOG_FILE ../src/hardware/generated/acceleration_core/Accelerat_ip_src_binNZ.v
 set_global_assignment -name VERILOG_FILE ../src/hardware/generated/acceleration_core/Accelerat_ip_src_binLast.v
@@ -167,6 +169,10 @@ set_global_assignment -name QIP_FILE ../src/hardware/generated/acc2d_fifo.qip
 set_global_assignment -name QIP_FILE ../src/hardware/generated/bias_rom.qip
 set_global_assignment -name QIP_FILE fujian_mountain_256.qip
 set_global_assignment -name QIP_FILE ../src/hardware/generated/fujian_mountain_256.qip
+set_global_assignment -name QIP_FILE ../src/hardware/generated/kern_ch1_re.qip
+set_global_assignment -name QIP_FILE ../src/hardware/generated/kern_ch2_re.qip
+set_global_assignment -name QIP_FILE ../src/hardware/generated/kern_ch3_re.qip
+set_global_assignment -name QIP_FILE ../src/hardware/generated/kern_ch1_im.qip
+set_global_assignment -name QIP_FILE ../src/hardware/generated/kern_ch2_im.qip
+set_global_assignment -name QIP_FILE ../src/hardware/generated/kern_ch3_im.qip
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
-set_global_assignment -name FLOW_ENABLE_RTL_VIEWER ON
-set_global_assignment -name TIMING_ANALYZER_MULTICORNER_ANALYSIS ON
