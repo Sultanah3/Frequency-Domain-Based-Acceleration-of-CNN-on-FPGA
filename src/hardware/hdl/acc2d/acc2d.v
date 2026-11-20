@@ -3,16 +3,18 @@
 // Overlap-add accumulator.
 // Adds every NC x NC block from ifft2d into the output image in SDRAM.
 // The first touch of a pixel writes sample + bias; later touches read, add
-// and write. Blocks arrive tile by tile in raster order, all COUT filters of
-// a tile before the next one.
+// and write. The filters are processed in passes of COUT_PASS (one kernel
+// set per pass). Within a pass, blocks arrive tile by tile in raster order,
+// all COUT_PASS filters of a tile before the next one.
 //   address = OUT_BASE + 4 * (m * HO * HO + row * HO + col)
 // ready_out drops when the FIFO has no room for two more blocks.
 module acc2d #(
-    parameter B        = 64,
-    parameter K        = 11,
-    parameter H        = 227,
-    parameter COUT     = 96,
-    parameter OUT_BASE = 32'h0
+    parameter B         = 64,
+    parameter K         = 11,
+    parameter H         = 227,
+    parameter COUT      = 96,
+    parameter COUT_PASS = 2,
+    parameter OUT_BASE  = 32'h0
 ) (
     input  wire               clk,
     input  wire               reset,
@@ -33,29 +35,39 @@ module acc2d #(
   localparam NT = (H + B - 1) / B;  // tiles per side
   localparam HO = H - K + 1;  // output side
   localparam GW = $clog2(NT * B + K);  // full-convolution coordinate width
+  localparam NP = COUT / COUT_PASS;  // passes
+  localparam MW = COUT_PASS > 1 ? $clog2(COUT_PASS) : 1;
+  localparam PW = NP > 1 ? $clog2(NP) : 1;
 
   // Position of the incoming sample: column c and row r in the block,
-  // filter m, tile column tc and tile row tr
+  // filter mp in the pass, tile column tc, tile row tr and pass p
   reg [$clog2(NC)-1:0] c, r;
-  reg [6:0] m;
+  reg [MW-1:0] mp;
   reg [$clog2(NT)-1:0] tc, tr;
+  reg [PW-1:0] p;
+
+  wire [6:0] m = p * COUT_PASS + mp;  // filter
 
   wire c_end = c == NC - 1;
   wire r_end = r == NC - 1;
-  wire m_end = m == COUT - 1;
+  wire mp_end = mp == COUT_PASS - 1;
   wire tc_end = tc == NT - 1;
+  wire tr_end = tr == NT - 1;
 
   always @(posedge clk or posedge reset)
-    if (reset) {tr, tc, m, r, c} <= 0;
+    if (reset) {p, tr, tc, mp, r, c} <= 0;
     else if (valid_in) begin
       c <= c_end ? 0 : c + 1'b1;
       if (c_end) begin
         r <= r_end ? 0 : r + 1'b1;
         if (r_end) begin
-          m <= m_end ? 0 : m + 1'b1;
-          if (m_end) begin
+          mp <= mp_end ? 0 : mp + 1'b1;
+          if (mp_end) begin
             tc <= tc_end ? 0 : tc + 1'b1;
-            if (tc_end) tr <= tr == NT - 1 ? 0 : tr + 1'b1;
+            if (tc_end) begin
+              tr <= tr_end ? 0 : tr + 1'b1;
+              if (tr_end) p <= p == NP - 1 ? 0 : p + 1'b1;
+            end
           end
         end
       end
@@ -139,7 +151,8 @@ module acc2d #(
       wdata   <= $signed(fifo_q[25:0]);
     end else if (state == RD_WAIT && avm_readdatavalid) wdata <= wdata + avm_readdata;
 
-  // The last output pixel belongs to the last tile only, so its write ends the image
+  // The last output pixel belongs to the last tile of the last pass only, so
+  // its write ends the image
   always @(posedge clk or posedge reset)
     if (reset) img_done <= 1'b0;
     else img_done <= state == WR && !avm_waitrequest && wr_addr == COUT * HO * HO - 1;

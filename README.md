@@ -47,7 +47,13 @@ PATH. Restart Cursor / VS Code afterwards so the new PATH is picked up.
 
 ### `src/software/`
 
-C driver running on the ARM processor inside the SoC.
+`hps/oaa_run.c`: C program on the ARM (HPS) that loads the tiles and kernels,
+starts the core and reads the output. Board steps: `src/hardware/README.md`.
+
+### `quartus/`
+
+Project `OaA-FFT-Convolution-Accelerator.qpf`. Revision `DE10`: Terasic GHRD base
+(`soc_system.qsys`, `ip/`) with the core, acc2d and the start sequencer in `src/Top.v`.
 
 ### `vectors/`
 

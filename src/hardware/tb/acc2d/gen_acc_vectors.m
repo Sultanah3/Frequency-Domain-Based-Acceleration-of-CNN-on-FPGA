@@ -1,7 +1,7 @@
 % gen_acc_vectors.m: acc2d testbench input from the last AcceleratationCore run.
 % Run the model on the full image first, so "out" is in the workspace.
 % Writes src/hardware/sim/acc2d_in.hex: every valid ifft2d sample, 25-bit two's complement, one per line.
-% The bias ROM contents (resources/bias.mif) come from gen_rom_mif.
+% The bias ROM contents (resources/bias.mif) come from gen_hps_inputs.
 
 here   = fileparts(mfilename('fullpath'));                 % src/hardware/tb/acc2d
 root   = fullfile(here, '..', '..', '..', '..');            % repo root

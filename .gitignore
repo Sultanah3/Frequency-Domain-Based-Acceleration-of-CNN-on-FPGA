@@ -88,3 +88,16 @@ Thumbs.db
 *.qdf
 greybox_tmp/
 *.ver
+
+# ==========================================
+# Platform Designer output (regenerate from quartus/soc_system.qsys)
+# ==========================================
+quartus/soc_system/
+quartus/.qsys_edit/
+quartus/hps_sdram_p0_*
+*.sopcinfo
+
+# ==========================================
+# HPS program data (from scripts/matlab/gen_hps_inputs.m)
+# ==========================================
+src/software/hps/*.bin

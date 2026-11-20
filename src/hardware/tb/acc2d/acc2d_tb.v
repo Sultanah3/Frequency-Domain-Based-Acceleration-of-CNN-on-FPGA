@@ -6,11 +6,15 @@
 // slave with random wait states, and writes the output image to
 // acc2d_out.hex. The data are checked in MATLAB ("Show output image" in
 // AcceleratationCore); this bench checks the protocol.
+// acc2d_in.hex holds one pass (Cout = COUT_PASS filters). With COUT larger
+// than COUT_PASS the same stream is played once per pass, so filter
+// m + COUT_PASS must equal filter m apart from the bias.
 module acc2d_tb;
 
-  localparam B = 64, K = 11, H = 227, COUT = 2;  // COUT = Cout in the model workspace
+  localparam B = 64, K = 11, H = 227, COUT = 4, COUT_PASS = 2;  // COUT_PASS = Cout in the model workspace
   localparam NC = B + K - 1, NT = (H + B - 1) / B, HO = H - K + 1, L = 128;
   localparam NBLK = NT * NT * COUT;  // blocks in the image
+  localparam NSTIM = NT * NT * COUT_PASS * NC * NC;  // samples in one pass
   localparam NPIX = COUT * HO * HO;  // output words
   localparam PERIOD = 17792;  // ifft2d: cycles between block starts
   localparam LAT_UP = 8935;  // block start at cmac2d to first ifft2d sample (gen_acc_vectors)
@@ -33,11 +37,12 @@ module acc2d_tb;
   wire               avm_read, avm_write, avm_readdatavalid, avm_waitrequest;
 
   acc2d #(
-      .B       (B),
-      .K       (K),
-      .H       (H),
-      .COUT    (COUT),
-      .OUT_BASE(OUT_BASE)
+      .B        (B),
+      .K        (K),
+      .H        (H),
+      .COUT     (COUT),
+      .COUT_PASS(COUT_PASS),
+      .OUT_BASE (OUT_BASE)
   ) dut (
       .clk              (clk),
       .reset            (reset),
@@ -57,7 +62,7 @@ module acc2d_tb;
   // ifft2d model: a block may start every PERIOD cycles while ready_out is
   // high (ready_out goes into cmac2d.readyIn). It arrives LAT_UP cycles later
   // as NC rows of NC valid samples, each followed by L - NC idle cycles.
-  reg [24:0] stim[0:NBLK*NC*NC-1];
+  reg [24:0] stim[0:NSTIM-1];
   integer start[0:NBLK-1];
   integer n_start = 0, last_start = -PERIOD, stalls = 0;
   integer blk, row, col, idx = 0;
@@ -88,7 +93,7 @@ module acc2d_tb;
         for (col = 0; col < L; col = col + 1) begin
           @(negedge clk);
           valid_in = col < NC;
-          data_in  = valid_in ? stim[idx] : $random(seed);  // idle cycles carry junk
+          data_in  = valid_in ? stim[idx % NSTIM] : $random(seed);  // idle cycles carry junk
           if (valid_in) idx = idx + 1;
         end
     end
